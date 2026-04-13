@@ -7,8 +7,8 @@ public abstract class Ordination {
     public Laegemiddel laegemiddel { get; set; }
     
     public Ordination(Laegemiddel laegemiddel, DateTime startDen = new DateTime(), DateTime slutDen = new DateTime()) {
-    	this.startDen = startDen;
-    	this.slutDen = slutDen;
+        this.startDen = startDen;
+        this.slutDen = slutDen;
         this.laegemiddel = laegemiddel;
     }
 
