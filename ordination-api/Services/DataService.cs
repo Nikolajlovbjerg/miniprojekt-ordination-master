@@ -130,9 +130,33 @@ public class DataService
         return db.Laegemiddler.ToList();
     }
 
-    public PN OpretPN(int patientId, int laegemiddelId, double antal, DateTime startDato, DateTime slutDato) {
-        // TODO: Implement!
-        return null!;
+    public PN OpretPN(int patientId, int laegemiddelId, double antal, DateTime startDato, DateTime slutDato)
+    {
+
+        // 1. Validering af datoer (Startdato må ikke ligge efter slutdato)
+        if (startDato > slutDato)
+        {
+            throw new ArgumentException("Startdato må ikke være efter slutdato.");
+        }
+
+        // 2. Find patient og lægemiddel i systemet
+        // Her antages det, at du har lister eller en service til rådighed
+        Patient? patient = GetPatienter().FirstOrDefault(p => p.PatientId == patientId);
+        Laegemiddel? laegemiddel = GetLaegemidler().FirstOrDefault(l => l.LaegemiddelId == laegemiddelId);
+
+        // 3. Sikr dig at objekterne findes
+        if (patient == null || laegemiddel == null)
+        {
+            throw new InvalidOperationException("Patient eller Lægemiddel blev ikke fundet.");
+        }
+
+        // 4. Opret den nye PN-ordination
+        PN nyPN = new PN(startDato, slutDato, antal, laegemiddel);
+
+        // 5. Tilføj ordinationen til patienten (hvis dit system kræver dette)
+        patient.ordinationer.Add(nyPN);
+
+        return nyPN;
     }
 
     public DagligFast OpretDagligFast(int patientId, int laegemiddelId, 
