@@ -156,6 +156,8 @@ public class DataService
         // 5. Tilføj ordinationen til patienten (hvis dit system kræver dette)
         patient.ordinationer.Add(nyPN);
 
+        db.SaveChanges();
+
         return nyPN;
     }
 
@@ -172,9 +174,34 @@ public class DataService
         return null!;
     }
 
-    public string AnvendOrdination(int id, Dato dato) {
-        // TODO: Implement!
-        return null!;
+    public string AnvendOrdination(int id, Dato dato)
+    {
+        // 1. Find PN-ordinationen baseret på ID
+        // Vi bruger Include, hvis du arbejder med Entity Framework for at sikre, at 'dates' er indlæst
+        var pn = db.PNs.Include(p => p.dates).FirstOrDefault(p => p.OrdinationId == id);
+
+        if (pn == null)
+        {
+            return "Fejl: PN-ordination kunne ikke findes.";
+        }
+
+        // 2. Tjek om den givne dato ligger inden for start- og slutdato (inklusiv)
+        // Vi sammenligner kun dato-delen (Date), så klokkeslættet ikke driller
+        if (dato.dato.Date >= pn.startDen.Date && dato.dato.Date <= pn.slutDen.Date)
+        {
+
+            // 3. Registrer anvendelsen
+            pn.dates.Add(dato);
+
+            // Gem ændringer i databasen
+            db.SaveChanges();
+
+            return "Success: Medicin registreret anvendt d. " + dato.dato.ToShortDateString();
+        }
+        else
+        {
+            return "Fejl: Datoen ligger uden for ordinationens gyldighedsperiode.";
+        }
     }
 
     /// <summary>
