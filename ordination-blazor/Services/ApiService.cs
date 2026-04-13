@@ -11,7 +11,7 @@ public class ApiService
 {
     private readonly HttpClient http;
     private readonly IConfiguration configuration;
-    private readonly string baseAPI = "";
+    private readonly string baseAPI = "https://localhost:8081";
     public event Action? RefreshRequired;
 
     public ApiService(HttpClient http, IConfiguration configuration)
