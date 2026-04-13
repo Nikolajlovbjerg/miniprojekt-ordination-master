@@ -10,7 +10,7 @@
 *.userosscache
 *.sln.docstates
 
-
+/bin
 .idea/
 .env
 .DS_Store
