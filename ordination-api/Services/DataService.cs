@@ -144,8 +144,21 @@ public class DataService
     }
 
     public DagligSkæv OpretDagligSkaev(int patientId, int laegemiddelId, Dosis[] doser, DateTime startDato, DateTime slutDato) {
-        // TODO: Implement!
-        return null!;
+        
+        Patient patient = db.Patienter.Include(p => p.ordinationer).FirstOrDefault(p => p.PatientId == patientId)!;
+        Laegemiddel laegemiddel = db.Laegemiddler.FirstOrDefault(l => l.LaegemiddelId == laegemiddelId)!;
+        
+        DagligSkæv nySkaev = new DagligSkæv(startDato, slutDato, laegemiddel);
+        
+        foreach (Dosis d in doser) {
+            nySkaev.doser.Add(d);
+        }
+        
+        patient.ordinationer.Add(nySkaev);
+        
+        db.SaveChanges();
+
+        return nySkaev;
     }
 
     public string AnvendOrdination(int id, Dato dato) {
@@ -161,8 +174,27 @@ public class DataService
     /// <param name="laegemiddel"></param>
     /// <returns></returns>
 	public double GetAnbefaletDosisPerDøgn(int patientId, int laegemiddelId) {
-        // TODO: Implement!
-        return -1;
-	}
+        var patient = db.Patienter.FirstOrDefault(p => p.PatientId == patientId);
+        var laegemiddel = db.Laegemiddler.FirstOrDefault(l => l.LaegemiddelId == laegemiddelId);
+        
+        if (patient == null || laegemiddel == null) {
+            return -1;
+        }
+
+        double anbefaletDosis = 0;
+        
+        if (patient.vaegt < 25) {
+            anbefaletDosis = patient.vaegt * laegemiddel.enhedPrKgPrDoegnLet;
+        } 
+        else if (patient.vaegt > 120) {
+            anbefaletDosis = patient.vaegt * laegemiddel.enhedPrKgPrDoegnTung;
+        } 
+        else {
+            anbefaletDosis = patient.vaegt * laegemiddel.enhedPrKgPrDoegnNormal;
+        }
+
+        return anbefaletDosis;
+
+    }
     
 }
