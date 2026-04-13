@@ -130,9 +130,35 @@ public class DataService
         return db.Laegemiddler.ToList();
     }
 
-    public PN OpretPN(int patientId, int laegemiddelId, double antal, DateTime startDato, DateTime slutDato) {
-        // TODO: Implement!
-        return null!;
+    public PN OpretPN(int patientId, int laegemiddelId, double antal, DateTime startDato, DateTime slutDato)
+    {
+
+        // 1. Validering af datoer (Startdato må ikke ligge efter slutdato)
+        if (startDato > slutDato)
+        {
+            throw new ArgumentException("Startdato må ikke være efter slutdato.");
+        }
+
+        // 2. Find patient og lægemiddel i systemet
+        // Her antages det, at du har lister eller en service til rådighed
+        Patient? patient = GetPatienter().FirstOrDefault(p => p.PatientId == patientId);
+        Laegemiddel? laegemiddel = GetLaegemidler().FirstOrDefault(l => l.LaegemiddelId == laegemiddelId);
+
+        // 3. Sikr dig at objekterne findes
+        if (patient == null || laegemiddel == null)
+        {
+            throw new InvalidOperationException("Patient eller Lægemiddel blev ikke fundet.");
+        }
+
+        // 4. Opret den nye PN-ordination
+        PN nyPN = new PN(startDato, slutDato, antal, laegemiddel);
+
+        // 5. Tilføj ordinationen til patienten (hvis dit system kræver dette)
+        patient.ordinationer.Add(nyPN);
+
+        db.SaveChanges();
+
+        return nyPN;
     }
 
     public DagligFast OpretDagligFast(int patientId, int laegemiddelId, 
@@ -161,9 +187,34 @@ public class DataService
         return nySkaev;
     }
 
-    public string AnvendOrdination(int id, Dato dato) {
-        // TODO: Implement!
-        return null!;
+    public string AnvendOrdination(int id, Dato dato)
+    {
+        // 1. Find PN-ordinationen baseret på ID
+        // Vi bruger Include, hvis du arbejder med Entity Framework for at sikre, at 'dates' er indlæst
+        var pn = db.PNs.Include(p => p.dates).FirstOrDefault(p => p.OrdinationId == id);
+
+        if (pn == null)
+        {
+            return "Fejl: PN-ordination kunne ikke findes.";
+        }
+
+        // 2. Tjek om den givne dato ligger inden for start- og slutdato (inklusiv)
+        // Vi sammenligner kun dato-delen (Date), så klokkeslættet ikke driller
+        if (dato.dato.Date >= pn.startDen.Date && dato.dato.Date <= pn.slutDen.Date)
+        {
+
+            // 3. Registrer anvendelsen
+            pn.dates.Add(dato);
+
+            // Gem ændringer i databasen
+            db.SaveChanges();
+
+            return "Success: Medicin registreret anvendt d. " + dato.dato.ToShortDateString();
+        }
+        else
+        {
+            return "Fejl: Datoen ligger uden for ordinationens gyldighedsperiode.";
+        }
     }
 
     /// <summary>
