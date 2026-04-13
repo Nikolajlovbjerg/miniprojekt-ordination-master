@@ -24,13 +24,7 @@ public class DagligFast : Ordination {
 	}
 
 	public override double doegnDosis() {
-		double totalDosis = 0;
-		
-		foreach (Dosis doser in getDoser()) {
-			totalDosis += doser.antal;
-		}
-
-		return totalDosis;
+		return MorgenDosis.antal + MiddagDosis.antal + AftenDosis.antal + NatDosis.antal;
 	}
 	
 
