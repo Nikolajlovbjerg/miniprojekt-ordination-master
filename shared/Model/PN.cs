@@ -18,9 +18,14 @@ public class PN : Ordination {
     /// </summary>
     public bool givDosis(Dato givesDen)
     {
-        // Tjek om datoen for givning ligger inden for ordinationens gyldighedsperiode
-        // Vi bruger .Date for at ignorere klokkeslæt i sammenligningen
-        if (givesDen.dato.Date >= startDen.Date && givesDen.dato.Date <= slutDen.Date)
+        // 1. Tjek først om objektet er null (vigtigt for at bestå din unit test!)
+        if (givesDen == null)
+        {
+            throw new ArgumentNullException(nameof(givesDen), "Dato-objektet må ikke være null");
+        }
+
+        // 2. Tjek om datoen ligger inden for gyldighedsperioden
+        else if (givesDen.dato.Date >= startDen.Date && givesDen.dato.Date <= slutDen.Date)
         {
             dates.Add(givesDen);
             return true;

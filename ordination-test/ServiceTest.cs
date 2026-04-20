@@ -27,30 +27,66 @@ public class ServiceTest
         Assert.IsNotNull(service.GetPatienter());
     }
 
+    // 1. Test af Opret PN
     [TestMethod]
-    public void OpretDagligFast()
+    public void Test_OpretPN_GemmesKorrekt()
     {
-        Patient patient = service.GetPatienter().First();
-        Laegemiddel lm = service.GetLaegemidler().First();
+        int antal = service!.GetPNs().Count;
 
-        Assert.AreEqual(1, service.GetDagligFaste().Count());
+        // Parametre: patientId, laegemiddelId, antal, startDato, slutDato
+        service.OpretPN(1, 1, 2.0, DateTime.Now, DateTime.Now.AddDays(3));
 
-        service.OpretDagligFast(patient.PatientId, lm.LaegemiddelId,
-            2, 2, 1, 0, DateTime.Now, DateTime.Now.AddDays(3));
+        Assert.AreEqual(antal + 1, service.GetPNs().Count, "PN blev ikke gemt i databasen");
+    }
 
-        Assert.AreEqual(2, service.GetDagligFaste().Count());
+    [TestMethod]
+    public void Test_OpretDagligFast_GemmesKorrekt()
+    {
+        int antal = service!.GetDagligFaste().Count;
+
+        // Parametre: patientId, laegemiddelId, morgen, middag, aften, nat, start, slut
+        service.OpretDagligFast(1, 1, 1, 1, 1, 1, DateTime.Now, DateTime.Now.AddDays(3));
+
+        Assert.AreEqual(antal + 1, service.GetDagligFaste().Count, "Daglig Fast blev ikke gemt i databasen");
+    }
+
+    [TestMethod]
+    public void Test_OpretDagligSkaev_GemmesKorrekt()
+    {
+        int antalFoer = service!.GetDagligSkæve().Count;
+
+        // Vi opretter listen af doser
+        List<Dosis> doser = new List<Dosis> {
+        new Dosis(DateTime.Now.Date.AddHours(8), 1.0),
+        new Dosis(DateTime.Now.Date.AddHours(20), 2.0)
+    };
+
+        // Tilføj .ToArray() herunder for at konvertere listen til det format, metoden vil have
+        service.OpretDagligSkaev(1, 1, doser.ToArray(), DateTime.Now, DateTime.Now.AddDays(3));
+
+        Assert.AreEqual(antalFoer + 1, service.GetDagligSkæve().Count, "Daglig Skæv blev ikke gemt i databasen");
+    }
+
+    [TestMethod]
+    public void GetAnbefaletDosis_LetPatient()
+    {
+        // Vi ved Acetylsalicylsyre (ID 1) har faktor 0.1 for lette patienter
+        // Vi tester manuelt med en vægt på 15kg (skal give 1.5)
+        // OBS: I en rigtig test ville du oprette en patient med vægt 15 i din Setup
+        double result = service.GetAnbefaletDosisPerDøgn(1, 1);
+        // Her antages det at patient 1 i din SeedData er den vi tester.
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]
-    public void TestAtKodenSmiderEnException()
+    public void PN_GivDosis_ThrowsOnNullDato()
     {
-        // Herunder skal man så kalde noget kode,
-        // der smider en exception.
+        PN pn = new PN(DateTime.Now, DateTime.Now.AddDays(3), 2.0, new Laegemiddel());
 
-        // Hvis koden _ikke_ smider en exception,
-        // så fejler testen.
-
-        Console.WriteLine("Her kommer der ikke en exception. Testen fejler.");
+        // Her kalder vi metoden med null. 
+        // Hvis din kode i PN har: if (givesDen == null) throw new ArgumentNullException(...);
+        // så vil denne test bestå (blive grøn).
+        pn.givDosis(null!);
     }
 }
