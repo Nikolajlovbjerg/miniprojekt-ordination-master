@@ -29,7 +29,7 @@ public class ServiceTest
 
     // 1. Test af Opret PN
     [TestMethod]
-    public void Test_OpretPN_GemmesKorrekt()
+    public void TestOpretPN()
     {
         int antal = service!.GetPNs().Count;
 
@@ -40,7 +40,7 @@ public class ServiceTest
     }
 
     [TestMethod]
-    public void Test_OpretDagligFast_GemmesKorrekt()
+    public void TestOpretDagligFast()
     {
         int antal = service!.GetDagligFaste().Count;
 
@@ -51,7 +51,7 @@ public class ServiceTest
     }
 
     [TestMethod]
-    public void Test_OpretDagligSkaev_GemmesKorrekt()
+    public void TestOpretDagligSkaev()
     {
         int antalFoer = service!.GetDagligSkæve().Count;
 
@@ -68,7 +68,7 @@ public class ServiceTest
     }
 
     [TestMethod]
-    public void GetAnbefaletDosis_LetPatient()
+    public void GetAnbefaletDosisLetPatient()
     {
         // Vi ved Acetylsalicylsyre (ID 1) har faktor 0.1 for lette patienter
         // Vi tester manuelt med en vægt på 15kg (skal give 1.5)
@@ -80,7 +80,7 @@ public class ServiceTest
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]
-    public void PN_GivDosis_ThrowsOnNullDato()
+    public void PNGivDosisExceptionTest()
     {
         PN pn = new PN(DateTime.Now, DateTime.Now.AddDays(3), 2.0, new Laegemiddel());
 
