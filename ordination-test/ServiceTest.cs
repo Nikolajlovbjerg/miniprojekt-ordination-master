@@ -27,7 +27,7 @@ public class ServiceTest
         Assert.IsNotNull(service.GetPatienter());
     }
 
-    // 1. Test af Opret PN
+    // Test af Opret PN
     [TestMethod]
     public void TestOpretPN()
     {
@@ -38,7 +38,7 @@ public class ServiceTest
 
         Assert.AreEqual(antal + 1, service.GetPNs().Count, "PN blev ikke gemt i databasen");
     }
-
+    // Test af Opret Dalig Fast
     [TestMethod]
     public void TestOpretDagligFast()
     {
@@ -49,7 +49,7 @@ public class ServiceTest
 
         Assert.AreEqual(antal + 1, service.GetDagligFaste().Count, "Daglig Fast blev ikke gemt i databasen");
     }
-
+    // Test af Opret Daglig Skæv
     [TestMethod]
     public void TestOpretDagligSkaev()
     {
@@ -60,8 +60,7 @@ public class ServiceTest
         new Dosis(DateTime.Now.Date.AddHours(8), 1.0),
         new Dosis(DateTime.Now.Date.AddHours(20), 2.0)
     };
-
-        // Tilføj .ToArray() herunder for at konvertere listen til det format, metoden vil have
+        
         service.OpretDagligSkaev(1, 1, doser.ToArray(), DateTime.Now, DateTime.Now.AddDays(3));
 
         Assert.AreEqual(antalFoer + 1, service.GetDagligSkæve().Count, "Daglig Skæv blev ikke gemt i databasen");
@@ -72,7 +71,6 @@ public class ServiceTest
     {
         // Vi ved Acetylsalicylsyre (ID 1) har faktor 0.1 for lette patienter
         // Vi tester manuelt med en vægt på 15kg (skal give 1.5)
-        // OBS: I en rigtig test ville du oprette en patient med vægt 15 i din Setup
         double result = service.GetAnbefaletDosisPerDøgn(1, 1);
         // Her antages det at patient 1 i din SeedData er den vi tester.
         Assert.IsNotNull(result);
@@ -83,10 +81,7 @@ public class ServiceTest
     public void PNGivDosisExceptionTest()
     {
         PN pn = new PN(DateTime.Now, DateTime.Now.AddDays(3), 2.0, new Laegemiddel());
-
-        // Her kalder vi metoden med null. 
-        // Hvis din kode i PN har: if (givesDen == null) throw new ArgumentNullException(...);
-        // så vil denne test bestå (blive grøn).
+        
         pn.givDosis(null!);
     }
 }
